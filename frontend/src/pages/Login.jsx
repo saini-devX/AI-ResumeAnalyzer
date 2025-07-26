@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowLeft } from "lucide-react";
-import axios from 'axios';
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,15 +14,19 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/login", {
-        email,
-        password
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
+      const res = await axios.post(
+        "https://ai-resumeanalyzer.onrender.com/api/auth/login",
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
       const data = res.data;
 

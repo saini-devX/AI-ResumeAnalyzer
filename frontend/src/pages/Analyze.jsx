@@ -55,7 +55,7 @@ export default function Upload() {
     try {
       setIsAnalyzing(true);
       const res = await axios.post(
-        "http://localhost:8000/api/analyze/file",
+        "https://ai-resumeanalyzer.onrender.com/api/analyze/file",
         formData
       );
       const result = res.data;

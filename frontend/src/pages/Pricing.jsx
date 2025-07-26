@@ -1,5 +1,5 @@
 import { Check, Crown, Gift } from "lucide-react";
-import axios from 'axios';
+import axios from "axios";
 
 export default function Pricing() {
   const plans = [
@@ -47,7 +47,7 @@ export default function Pricing() {
   const handlePurchase = async (planName) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/stripe/create-checkout-session",
+        "https://ai-resumeanalyzer.onrender.com/api/stripe/create-checkout-session",
         { planName },
         {
           headers: { "Content-Type": "application/json" },

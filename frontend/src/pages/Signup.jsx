@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, User, Mail, Lock } from "lucide-react";
-import axios from 'axios';
+import axios from "axios";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -14,16 +14,20 @@ export default function Register() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/signup", {
-        name,
-        email,
-        password
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
+      const res = await axios.post(
+        "https://ai-resumeanalyzer.onrender.com/api/auth/signup",
+        {
+          name,
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
       const data = res.data;
 

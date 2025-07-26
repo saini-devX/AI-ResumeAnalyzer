@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://ai-resumeanalyzer.onrender.com/api";
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
@@ -10,8 +10,8 @@ export const loginUser = async (email, password) => {
     email,
     password
   }, {
-    headers: { 
-      "Content-Type": "application/json" 
+    headers: {
+      "Content-Type": "application/json"
     }
   });
   return res.data;
@@ -23,8 +23,8 @@ export const signupUser = async (name, email, password) => {
     email,
     password
   }, {
-    headers: { 
-      "Content-Type": "application/json" 
+    headers: {
+      "Content-Type": "application/json"
     }
   });
   return res.data;
