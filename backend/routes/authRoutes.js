@@ -18,10 +18,11 @@ router.post("/signup", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+    // Fixed cookie configuration for cross-origin requests
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax",
+      secure: true, // Always true since Render uses HTTPS
+      sameSite: "None", // Required for cross-origin requests (Vercel → Render)
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -34,6 +35,7 @@ router.post("/signup", async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("Signup error:", err);
     res.status(500).json({ message: "Signup failed" });
   }
 });
@@ -51,10 +53,11 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+    // Fixed cookie configuration for cross-origin requests
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax",
+      secure: true, // Always true since Render uses HTTPS
+      sameSite: "None", // Required for cross-origin requests (Vercel → Render)
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -67,13 +70,18 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: "Login failed" });
   }
 });
 
 // Logout
 router.post("/logout", (req, res) => {
-  res.clearCookie("token").json({ message: "Logged out" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None", // Match the same settings used when setting the cookie
+  }).json({ message: "Logged out" });
 });
 
 export default router;
