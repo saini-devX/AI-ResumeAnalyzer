@@ -37,8 +37,8 @@ router.post("/create-checkout-session", async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: "http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: "http://localhost:5173/pricing?cancelled=true",
+      success_url: "https://resumes-analyzer.vercel.app/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://resumes-analyzer.vercel.app/pricing?cancelled=true",
     });
 
     res.json({ url: session.url });
