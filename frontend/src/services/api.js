@@ -35,7 +35,14 @@ export const logoutUser = async () => {
   return res.data;
 };
 
+
 export const fetchProfile = async () => {
-  const res = await axios.get(`${BASE_URL}/profile`);
+  const res = await axios.get(`${BASE_URL}/profile`, {
+    withCredentials: true, // This tells axios to include cookies
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
   return res.data;
 };
+
