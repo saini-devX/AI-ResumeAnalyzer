@@ -25,8 +25,7 @@
 
 
 
-
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 const requireAuth = (req, res, next) => {
   // Check Authorization header instead of cookies for iOS compatibility
@@ -46,4 +45,5 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-module.exports = { requireAuth };
+export { requireAuth };
+
