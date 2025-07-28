@@ -41,9 +41,8 @@
 
 
 
-
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const requireAuth = async (req, res, next) => {
   // Check Authorization header instead of cookies for iOS compatibility
@@ -70,4 +69,4 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { requireAuth, verifyToken: requireAuth };
+export { requireAuth, requireAuth as verifyToken };
