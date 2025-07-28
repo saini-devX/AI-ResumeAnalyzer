@@ -60,7 +60,6 @@
 
 
 
-
 const BASE_URL = "https://ai-resumeanalyzer.onrender.com/api";
 
 export const loginUser = async (email, password) => {
