@@ -98,10 +98,11 @@
 
 
 
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -118,17 +119,10 @@ router.post("/signup", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Optimized cookie configuration for cross-origin requests
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Always true since Render uses HTTPS
-      sameSite: "None", // Required for cross-origin requests (Vercel → Render)
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/", // Explicitly set path for better compatibility
-    });
-
+    // Return token in response body instead of cookie for iOS compatibility
     res.status(201).json({
       message: "Signup successful",
+      token: token, // Send token directly for localStorage storage
       user: {
         id: user._id,
         name: user.name,
@@ -136,7 +130,6 @@ router.post("/signup", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Signup error:", err);
     res.status(500).json({ message: "Signup failed" });
   }
 });
@@ -154,17 +147,10 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Optimized cookie configuration for cross-origin requests
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Always true since Render uses HTTPS
-      sameSite: "None", // Required for cross-origin requests (Vercel → Render)
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/", // Explicitly set path for better compatibility
-    });
-
+    // Return token in response body instead of cookie for iOS compatibility
     res.json({
       message: "Login successful",
+      token: token, // Send token directly for localStorage storage
       user: {
         id: user._id,
         name: user.name,
@@ -172,19 +158,15 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login error:", err);
     res.status(500).json({ message: "Login failed" });
   }
 });
 
 // Logout
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None", // Match the same settings used when setting the cookie
-    path: "/", // Explicitly set path to match cookie creation
-  }).json({ message: "Logged out" });
+  // Since we're not using cookies, logout is handled on frontend by removing token from localStorage
+  res.json({ message: "Logged out" });
 });
 
-export default router;
+module.exports = router;
+
