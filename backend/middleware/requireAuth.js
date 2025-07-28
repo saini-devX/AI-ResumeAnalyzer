@@ -1,7 +1,37 @@
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
+
+// const requireAuth = (req, res, next) => {
+//   const token = req.cookies.token;
+
+//   if (!token) {
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.user = decoded;
+//     next();
+//   } catch (err) {
+//     return res.status(401).json({ message: "Invalid token" });
+//   }
+// };
+
+// export { requireAuth };
+
+
+
+
+
+
+
+
+
+const jwt = require("jsonwebtoken");
 
 const requireAuth = (req, res, next) => {
-  const token = req.cookies.token;
+  // Check Authorization header instead of cookies for iOS compatibility
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -16,4 +46,4 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-export { requireAuth };
+module.exports = { requireAuth };
