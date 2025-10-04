@@ -71,7 +71,10 @@ function performComprehensiveAnalysis(resume, jobDescription) {
   const resumeLower = resume.toLowerCase();
   const jobLower = jobDescription.toLowerCase();
 
-  const skills = ['python', 'sql', 'javascript', 'aws', 'react', 'excel', 'machine learning'];
+  const skills = ["python", "sql", "javascript", "typescript", "node.js", "express",
+    "react", "next.js", "angular", "vue", "java", "c++", "aws", "azure",
+    "docker", "kubernetes", "graphql", "mongodb", "mysql", "postgresql",
+    "html", "css", "tailwind", "machine learning", "data analysis", "excel"];
   const matchedSkills = [], missingSkills = [];
 
   for (const skill of skills) {
