@@ -37,6 +37,11 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+// health check (for cron)
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // Start Server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () =>
