@@ -133,9 +133,6 @@
 
 
 
-
-
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -236,7 +233,7 @@ ${jobDescription}
 
   console.log("🤖 RAW AI OUTPUT →", raw);
 
-  // 🔒 Handle ```json blocks safely
+  // Handle ```json blocks safely
   if (raw.startsWith("```")) {
     raw = raw.replace(/```json|```/g, "").trim();
   }
@@ -281,7 +278,7 @@ function computeScore(result) {
 
 /*
 ========================================================
- KEYWORD FALLBACK (JAVA BUG FIXED ✅)
+ KEYWORD FALLBACK (SUGGESTIONS VARIED ✅)
 ========================================================
 */
 
@@ -316,11 +313,24 @@ function performKeywordFallback(resume, jobDescription) {
   const total = matched.length + missing.length;
   const score = total ? Math.round((matched.length / total) * 100) : 0;
 
+  // ✅ VARIED SUGGESTIONS (ONLY CHANGE)
+  const suggestionTemplates = [
+    s => `Add hands-on experience with ${s} to strengthen your profile.`,
+    s => `Highlight real-world projects or work involving ${s}.`,
+    s => `Consider gaining professional exposure to ${s}.`,
+    s => `Including ${s} in your skill set could improve ATS compatibility.`,
+    s => `Showcase practical usage of ${s} in your resume.`
+  ];
+
+  const suggestions = missing.map(
+    (skill, index) => suggestionTemplates[index % suggestionTemplates.length](skill)
+  );
+
   return {
     score,
     matchedSkills: matched,
     missingSkills: missing,
-    suggestions: missing.map(s => `Consider adding ${s} experience`)
+    suggestions
   };
 }
 
@@ -341,7 +351,7 @@ function fallbackResult(message) {
 
 /*
 ========================================================
- EXPORTS (NO DUPLICATES ✅)
+ EXPORTS
 ========================================================
 */
 
@@ -349,4 +359,3 @@ export {
   analyzeResume,
   analyzeResumeWithRetry
 };
-
