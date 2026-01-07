@@ -136,11 +136,9 @@
 
 
 
-
-
-
 import dotenv from "dotenv";
 dotenv.config();
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -148,7 +146,7 @@ const MODEL = "gemini-1.5-flash";
 
 /*
 ========================================================
- MAIN PUBLIC FUNCTION
+ MAIN PUBLIC FUNCTION (RETRY SAFE)
 ========================================================
 */
 
@@ -183,14 +181,10 @@ async function analyzeResume(resume, jobDescription) {
 
   try {
     const aiResult = await runGeminiAnalysis(resume, jobDescription);
-
     const validated = validateAIResult(aiResult);
-
-    const scored = computeScore(validated);
-
-    return scored;
+    return computeScore(validated);
   } catch (err) {
-    console.log("⚠️ Gemini AI failed → fallback applied:", err.message);
+    console.log("⚠️ Gemini failed → Using keyword fallback:", err.message);
     return performKeywordFallback(resume, jobDescription);
   }
 }
@@ -210,29 +204,24 @@ You are an ATS resume screening engine.
 Compare ONLY the SKILLS in the JOB DESCRIPTION against the RESUME.
 Do NOT assume missing skills.
 Do NOT reward irrelevant skills.
-Do NOT give 100 unless ALL required skills exist in resume.
+Do NOT give 100 unless ALL required skills exist.
 
-Steps you must follow:
+Steps:
 1. Extract required skills ONLY from job description
-2. Check if each exists in resume (case-insensitive)
-3. Build lists:
-   - matchedSkills
-   - missingSkills
-4. Score = matchedSkills / totalSkills * 100
-5. Round to nearest integer
-6. Suggest improvements
+2. Check if each exists in resume (case-insensitive, exact skill)
+3. Build matchedSkills and missingSkills
+4. Suggest improvements
 
-⚠ STRICT RULES:
-- DO NOT hallucinate skills
-- DO NOT rewrite inputs
-- DO NOT add commentary
+⚠ RULES:
+- No hallucination
+- No commentary
 - Return ONLY valid JSON
 
-OUTPUT JSON FORMAT:
+FORMAT:
 {
-  "matchedSkills": ["skill1","skill2"],
-  "missingSkills": ["skillA","skillB"],
-  "suggestions": ["sentence1","sentence2"]
+  "matchedSkills": [],
+  "missingSkills": [],
+  "suggestions": []
 }
 
 RESUME:
@@ -243,12 +232,16 @@ ${jobDescription}
 `;
 
   const result = await model.generateContent(prompt);
-  const raw = result.response.text().trim();
+  let raw = result.response.text().trim();
 
   console.log("🤖 RAW AI OUTPUT →", raw);
 
-  const parsed = JSON.parse(raw);
-  return parsed;
+  // 🔒 Handle ```json blocks safely
+  if (raw.startsWith("```")) {
+    raw = raw.replace(/```json|```/g, "").trim();
+  }
+
+  return JSON.parse(raw);
 }
 
 /*
@@ -267,21 +260,19 @@ function validateAIResult(ai) {
 
 /*
 ========================================================
- BACKEND-SIDE SCORE (TRUE SOURCE OF TRUTH)
+ BACKEND SCORE (SOURCE OF TRUTH)
 ========================================================
 */
 
 function computeScore(result) {
   const total = result.matchedSkills.length + result.missingSkills.length;
 
-  let score = total
+  const score = total
     ? Math.round((result.matchedSkills.length / total) * 100)
     : 0;
 
-  score = Math.max(0, Math.min(100, score));
-
   return {
-    score,
+    score: Math.max(0, Math.min(100, score)),
     matchedSkills: result.matchedSkills,
     missingSkills: result.missingSkills,
     suggestions: result.suggestions
@@ -290,13 +281,13 @@ function computeScore(result) {
 
 /*
 ========================================================
- KEYWORD FALLBACK ENGINE
+ KEYWORD FALLBACK (JAVA BUG FIXED ✅)
 ========================================================
 */
 
 function performKeywordFallback(resume, jobDescription) {
-  const resumeLower = resume.toLowerCase();
-  const jobLower = jobDescription.toLowerCase();
+  const resumeText = resume.toLowerCase();
+  const jobText = jobDescription.toLowerCase();
 
   const skills = [
     "python","sql","javascript","typescript",
@@ -311,23 +302,25 @@ function performKeywordFallback(resume, jobDescription) {
   const matched = [];
   const missing = [];
 
-  for (const s of skills) {
-    if (jobLower.includes(s)) {
-      resumeLower.includes(s) ? matched.push(s) : missing.push(s);
+  for (const skill of skills) {
+    const escaped = skill.replace(/[.+]/g, "\\$&");
+    const regex = new RegExp(`\\b${escaped}\\b`, "i");
+
+    if (regex.test(jobText)) {
+      regex.test(resumeText)
+        ? matched.push(skill)
+        : missing.push(skill);
     }
   }
 
   const total = matched.length + missing.length;
-
-  const score = total
-    ? Math.round((matched.length / total) * 100)
-    : 0;
+  const score = total ? Math.round((matched.length / total) * 100) : 0;
 
   return {
     score,
     matchedSkills: matched,
     missingSkills: missing,
-    suggestions: missing.map(s => `Consider learning ${s}`)
+    suggestions: missing.map(s => `Consider adding ${s} experience`)
   };
 }
 
@@ -348,7 +341,7 @@ function fallbackResult(message) {
 
 /*
 ========================================================
- EXPORTS
+ EXPORTS (NO DUPLICATES ✅)
 ========================================================
 */
 
@@ -356,3 +349,4 @@ export {
   analyzeResume,
   analyzeResumeWithRetry
 };
+
