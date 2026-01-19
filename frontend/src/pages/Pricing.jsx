@@ -47,7 +47,8 @@ export default function Pricing() {
   const handlePurchase = async (planName) => {
     try {
       const res = await axios.post(
-        "https://ai-resumeanalyzer.onrender.com/api/stripe/create-checkout-session",
+        // "https://ai-resumeanalyzer.onrender.com/api/stripe/create-checkout-session",
+        "https://ai-resumeanalyzer-bgl4.onrender.com/api/stripe/create-checkout-session",
         { planName },
         {
           headers: { "Content-Type": "application/json" },
