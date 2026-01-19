@@ -1,4 +1,5 @@
-const BASE_URL = "https://ai-resumeanalyzer.onrender.com/api";
+const BASE_URL = "https://ai-resumeanalyzer-bgl4.onrender.com/api";
+// const BASE_URL = "https://ai-resumeanalyzer.onrender.com/api";
 
 export const loginUser = async (email, password) => {
   const res = await fetch(`${BASE_URL}/auth/login`, {
